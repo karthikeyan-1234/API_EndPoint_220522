@@ -40,6 +40,38 @@ namespace API_EndPoint_220522.Services
             }
         }
 
+        public async Task<CityDTO> DeleteCityAsync(CityDTO city)
+        {
+            try
+            {
+                var res = repo.Delete(mapper.Map<City>(city));
+                await repo.SaveChangesAsync();
+                return mapper.Map<CityDTO>(res);
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError(ex.Message, city);
+                return null;
+            }
+        }
+
+        public async Task<CityDTO> UpdateCityAsync(CityDTO city)
+        {
+            try
+            {
+                var res = repo.Update(mapper.Map<City>(city));
+                await repo.SaveChangesAsync();
+                return mapper.Map<CityDTO>(res);
+            }
+            catch (Exception ex)
+            {
+
+                logger.LogError(ex.Message, city);
+                return null;
+            }
+        }
+
         public async Task<IEnumerable<CityDTO>> GetAllCitiesAsync()
         {
             try

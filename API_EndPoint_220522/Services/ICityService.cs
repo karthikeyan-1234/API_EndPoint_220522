@@ -9,5 +9,7 @@ namespace API_EndPoint_220522.Services
     {
         public Task<CityDTO> AddCityAsync(CityDTO newEmp);
         public Task<IEnumerable<CityDTO>> GetAllCitiesAsync();
+        public Task<CityDTO> DeleteCityAsync(CityDTO city);
+        public Task<CityDTO> UpdateCityAsync(CityDTO city);
     }
 }

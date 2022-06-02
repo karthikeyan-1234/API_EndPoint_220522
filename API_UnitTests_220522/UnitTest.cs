@@ -1,4 +1,5 @@
 ﻿using API_EndPoint_220522.Caching;
+using API_EndPoint_220522.Controllers;
 using API_EndPoint_220522.Mapper;
 using API_EndPoint_220522.Models;
 using API_EndPoint_220522.Models.DTOs;
@@ -6,7 +7,9 @@ using API_EndPoint_220522.Repositories;
 using API_EndPoint_220522.Services;
 using AutoMapper;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Collections.Generic;
@@ -24,6 +27,7 @@ namespace API_UnitTests_220522
             };
 
         CityDTO newCityDTO = new CityDTO { id = 0, name = "Salem", pincode = "600043" };
+        CityDTO updateCityDTO = new CityDTO { id = 1, name = "Salem", pincode = "600043" };
 
         Mock<IGenericRepo<City>> mockCityRepo = new Mock<IGenericRepo<City>>();
         MapperConfiguration mapper_config = new MapperConfiguration(cfg =>
@@ -33,6 +37,7 @@ namespace API_UnitTests_220522
         ICityService CityService;
         ICacheManager CacheManager;
         IMapper mapper;
+        CityController ctrlr;
 
         public UnitTest()
         {
@@ -61,7 +66,15 @@ namespace API_UnitTests_220522
             Mock<IDistributedCache> Cache = new Mock<IDistributedCache>();
             CacheManager = new CacheManager(Cache.Object);
 
+            Mock<IStringLocalizer<CityController>> mockLocalizer = new Mock<IStringLocalizer<CityController>>();
+            string key = "Chennai";
+            var localizedString = new LocalizedString(key, key);
+            mockLocalizer.Setup(_ => _[key]).Returns(localizedString);
+            var localizer = mockLocalizer.Object;
+
             CityService = new CityService(mockCityRepo.Object, new NullLogger<ICityService>(), CacheManager,mapper);
+            ctrlr = new CityController(new NullLogger<CityController>(), CityService, localizer);
+
         }
 
         [Fact]
@@ -78,6 +91,19 @@ namespace API_UnitTests_220522
         [Fact]
         public void Should_Add_New_City() =>
             CityService.AddCityAsync(newCityDTO).Result.Should().BeOfType<CityDTO>();
+
+        [Fact]
+        public void Should_Remove_City() =>
+            CityService.DeleteCityAsync(newCityDTO).Result.Should().BeOfType<CityDTO>();
+
+        [Fact]
+        public void Should_Update_City() =>
+            CityService.UpdateCityAsync(updateCityDTO).Result.Should().BeOfType<CityDTO>();
         
+        [Fact]
+        public void Should_GetAllCities_Action_Method_Return_OK()
+        {
+            ctrlr.GetAllCities().Result.Should().BeOfType<OkObjectResult>();
+        }
     }
 }
