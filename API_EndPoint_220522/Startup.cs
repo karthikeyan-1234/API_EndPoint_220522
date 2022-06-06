@@ -6,22 +6,12 @@ using API_EndPoint_220522.Repositories;
 using API_EndPoint_220522.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace API_EndPoint_220522
 {
@@ -48,10 +38,6 @@ namespace API_EndPoint_220522
             services.AddScoped<ICityService, CityService>();
             services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             services.AddAutoMapper(typeof(Mapping));
-            CorsPolicy policy = new CorsPolicyBuilder().AllowAnyHeader()
-                .AllowAnyMethod().AllowCredentials()
-                .WithOrigins("http://localhost:4200").Build();
-            services.AddCors(o => o.AddPolicy("myCors", policy));
             services.AddSignalR();
         }
 
@@ -64,8 +50,6 @@ namespace API_EndPoint_220522
             }
 
             app.UseHttpsRedirection();
-
-            app.UseCors("myCors");
 
             var supportedCultures = new[] { "en-US", "fr-FR","ta-IN" };
             var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[0])
