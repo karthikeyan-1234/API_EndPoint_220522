@@ -1,6 +1,7 @@
 using API_EndPoint_220522.Caching;
 using API_EndPoint_220522.Contexts;
 using API_EndPoint_220522.Mapper;
+using API_EndPoint_220522.Models.SignalR;
 using API_EndPoint_220522.Repositories;
 using API_EndPoint_220522.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,6 +48,11 @@ namespace API_EndPoint_220522
             services.AddScoped<ICityService, CityService>();
             services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>));
             services.AddAutoMapper(typeof(Mapping));
+            CorsPolicy policy = new CorsPolicyBuilder().AllowAnyHeader()
+                .AllowAnyMethod().AllowCredentials()
+                .WithOrigins("http://localhost:4200").Build();
+            services.AddCors(o => o.AddPolicy("myCors", policy));
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -58,6 +64,8 @@ namespace API_EndPoint_220522
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("myCors");
 
             var supportedCultures = new[] { "en-US", "fr-FR","ta-IN" };
             var localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(supportedCultures[0])
@@ -74,6 +82,7 @@ namespace API_EndPoint_220522
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<BroadCastHub>("/notify");
             });
         }
     }

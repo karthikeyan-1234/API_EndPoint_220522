@@ -1,8 +1,10 @@
 ﻿using API_EndPoint_220522.Caching;
 using API_EndPoint_220522.Models;
 using API_EndPoint_220522.Models.DTOs;
+using API_EndPoint_220522.Models.SignalR;
 using API_EndPoint_220522.Repositories;
 using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -18,10 +20,11 @@ namespace API_EndPoint_220522.Services
         ILogger<ICityService> logger;
         ICacheManager cache;
         IMapper mapper;
+        readonly IHubContext<BroadCastHub, IHubClient> hubContext;
 
-        public CityService(IGenericRepo<City> repo, ILogger<ICityService> logger,ICacheManager cache,IMapper mapper)
+        public CityService(IGenericRepo<City> repo, ILogger<ICityService> logger,ICacheManager cache,IMapper mapper, IHubContext<BroadCastHub, IHubClient> hubContext)
         {
-            this.repo = repo; this.logger = logger; this.cache = cache; this.mapper = mapper;
+            this.repo = repo; this.logger = logger; this.cache = cache; this.mapper = mapper; this.hubContext = hubContext;
         }
 
         public async Task<CityDTO> AddCityAsync(CityDTO newCity)
@@ -31,6 +34,7 @@ namespace API_EndPoint_220522.Services
                 var citi = mapper.Map<City>(newCity);
                 var res = await repo.AddAsync(citi);
                 await repo.SaveChangesAsync();
+                await hubContext.Clients.All.BroadcastMessage();
                 return mapper.Map<CityDTO>(res);
             }
             catch (Exception ex)
