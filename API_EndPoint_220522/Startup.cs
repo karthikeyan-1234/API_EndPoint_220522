@@ -67,6 +67,7 @@ namespace API_EndPoint_220522
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<BroadCastHub>("/notify");
+                endpoints.MapHub<MyHub>("/message");
             });
         }
     }
