@@ -59,7 +59,7 @@ namespace API_EndPoint_220522.Controllers
                 return Ok(res); 
             }
 
-            var errMsg = "Unable to obatin city list";
+            var errMsg = "Unable to obtain city list";
             logger.LogError(errMsg);
             return BadRequest(errMsg);
         }
